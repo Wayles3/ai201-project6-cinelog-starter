@@ -180,3 +180,23 @@ def test_add_to_watchlist_public_defaults_true_and_can_be_private(app, sample_us
         assert default_entry.public is True
         assert private_entry.public is False
 
+
+# ── Duplicates are per user ──────────────────────────────────────────────────
+
+def test_add_to_watchlist_same_film_for_different_users_allowed(
+    app, sample_user, sample_film
+):
+    """
+    The duplicate check is scoped to (user_id, film_id): a second user
+    adding a film that is already on someone else's watchlist must succeed.
+    """
+    with app.app_context():
+        other = User(username="otheruser", email="other@example.com")
+        db.session.add(other)
+        db.session.commit()
+
+        add_to_watchlist(user_id=sample_user, film_id=sample_film)
+        entry = add_to_watchlist(user_id=other.id, film_id=sample_film)
+
+        assert entry.user_id == other.id
+        assert WatchlistEntry.query.filter_by(film_id=sample_film).count() == 2
