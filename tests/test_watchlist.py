@@ -158,3 +158,25 @@ def test_remove_from_watchlist_not_present_raises(app, sample_user, sample_film)
     with app.app_context():
         with pytest.raises(NotInWatchlistError):
             remove_from_watchlist(user_id=sample_user, film_id=sample_film)
+
+
+# ── Visibility ───────────────────────────────────────────────────────────────
+
+def test_add_to_watchlist_public_defaults_true_and_can_be_private(app, sample_user):
+    """
+    Entries are public unless the caller explicitly passes public=False.
+    """
+    with app.app_context():
+        film_a = Film(title="Alien", year=1979, genre="Horror")
+        film_b = Film(title="Blade Runner", year=1982, genre="Sci-Fi")
+        db.session.add_all([film_a, film_b])
+        db.session.commit()
+
+        default_entry = add_to_watchlist(user_id=sample_user, film_id=film_a.id)
+        private_entry = add_to_watchlist(
+            user_id=sample_user, film_id=film_b.id, public=False
+        )
+
+        assert default_entry.public is True
+        assert private_entry.public is False
+
