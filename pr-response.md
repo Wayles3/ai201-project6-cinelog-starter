@@ -47,7 +47,27 @@ I used Claude Code (an AI coding agent) throughout this project, so I'm being sp
 **Visibility toggle:** `add_to_watchlist(user_id, film_id, public=True)` takes a `public` argument that is stored on the new `WatchlistEntry`. `POST /watchlist/<user_id>/add` accepts an optional `"public"` field in the JSON body. It defaults to `true` (see Comment 4), and a non-boolean value (e.g. `"no"`) returns 400 rather than being silently coerced. Example: `{"film_id": "<uuid>", "public": false}` creates a private entry.
 
 ## Git history
-<!-- TODO (you): paste your `git log --oneline` screenshot here after the final history is settled -->
+Output of `git log --oneline origin/main..HEAD` on `feature/watchlist` (linear history, no merge commits; `git log --merges` is empty). This block was captured before the commit that adds it.
+
+```
+380976d docs: add pr-response.md with review responses
+25aa11f docs: document watchlist endpoints and model in README
+31fa30c test: add test that duplicate check is scoped per user
+f6d1d65 test: add test for public default and private watchlist entries
+54072d8 feat: add public parameter to add_to_watchlist endpoint
+a325cf9 test: add tests for remove_from_watchlist
+74eb6f6 feat: add remove_from_watchlist service and endpoint
+6052ce0 test: add test for watchlist newest-first sort order
+0ee0e05 feat: sort watchlist by date added, newest first
+646ca54 fix: update WatchlistEntry film_id to UUID after main branch refactor
+2e37a58 test: add happy path and duplicate tests for add_to_watchlist
+5071e09 test: add test for nonexistent film_id in add_to_watchlist
+01f9469 fix: add deduplication check to prevent duplicate watchlist entries
+e9d69c6 fix: rename save_to_watchlist to add_to_watchlist per naming convention
+a4a06ab fix: add .gitignore to keep venv, caches, and local database out of history
+b80cae2 fix: update film retrieval method to use db.session.get in collection and watchlist services
+d38be14 feat: add watchlist model and add-to-watchlist endpoint
+```
 
 ## PR Description
 **What it does:** Adds a watchlist to CineLog: a list of films a user wants to watch later, separate from their collection of films already watched. Users can add a film (`POST /watchlist/<user_id>/add`), view their list (`GET /watchlist/<user_id>`), and remove a film (`DELETE /watchlist/<user_id>/remove`). Adding a film that is already on the list, or one that doesn't exist, returns a clear 409 or 404 instead of a server error.
